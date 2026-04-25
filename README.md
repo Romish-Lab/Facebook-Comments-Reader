@@ -34,9 +34,4 @@ Follow these steps to get the application running on your local machine.
 *   **Facebook Developer Account:** You need a Facebook account with developer access.
 *   **Facebook Page:** You must be an admin of the Facebook Page you want to monitor.
 
-### 2. Clone the Repository
 
-Clone this repository to your local machine using Git:
-```bash
-git clone https://github.com/your-username/your-repo-name.git
-cd your-repo-name
