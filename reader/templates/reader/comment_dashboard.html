@@ -1,0 +1,69 @@
+<!-- reader/templates/reader/comment_dashboard.html (New File) -->
+<!doctype html>
+<html>
+<head>
+    <title>Comment Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+<div class="container py-4">
+    <a href="{% url 'index' %}">&larr; Back to Home</a>
+    <h1 class="mt-2">Comment Dashboard</h1>
+    <div class="card my-3">
+        <div class="card-body">
+            <h5 class="card-title">Post Details</h5>
+            <p class="text-muted">{{ post.formatted_time }}</p>
+            <p>{{ post.message|default:'(No text message)' }}</p>
+            {% if post.full_picture %}
+                <img src="{{ post.full_picture }}" class="img-fluid rounded" style="max-height: 200px;">
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Filter Form -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="">
+                <div class="row g-3 align-items-end">
+                    <div class="col-md-6">
+                        <label for="search" class="form-label">Search Comments</label>
+                        <input type="text" name="search" id="search" class="form-control" value="{{ search_query }}">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="sentiment" class="form-label">Filter by Sentiment</label>
+                        <select name="sentiment" id="sentiment" class="form-select">
+                            <option value="">All</option>
+                            <option value="positive" {% if sentiment_filter == 'positive' %}selected{% endif %}>Positive</option>
+                            <option value="negative" {% if sentiment_filter == 'negative' %}selected{% endif %}>Negative</option>
+                            <option value="neutral" {% if sentiment_filter == 'neutral' %}selected{% endif %}>Neutral</option>
+                        </select>
+                    </div>
+                    <div class="col-md-2">
+                        <button type="submit" class="btn btn-primary w-100">Filter</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Comments List -->
+    <h4>Displaying {{ comment_count }} Comments</h4>
+    {% for comment in comments %}
+        <div class="card mb-2">
+            <div class="card-body">
+                <p>{{ comment.message }}</p>
+                <small class="text-muted">{{ comment.formatted_time }}</small> | 
+                <span class="badge 
+                    {% if comment.sentiment == 'positive' %}bg-success
+                    {% elif comment.sentiment == 'negative' %}bg-danger
+                    {% else %}bg-secondary{% endif %}">
+                    {{ comment.sentiment|capfirst }}
+                </span>
+            </div>
+        </div>
+    {% empty %}
+        <div class="alert alert-info">No comments found for this post or your filters.</div>
+    {% endfor %}
+</div>
+</body>
+</html>

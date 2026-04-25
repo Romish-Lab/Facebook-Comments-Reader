@@ -1,0 +1,105 @@
+<!-- reader/templates/reader/index.html (Updated) -->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Facebook Comment Dashboard</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h1>Facebook Comment Dashboard</h1>
+        <a href="{% url 'manage_keywords' %}" class="btn btn-secondary">Manage Alert Keywords</a>
+    </div>
+
+    <!-- Django Flash Messages -->
+    {% if messages %}
+      {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- Credentials Form -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <form action="{% url 'fetch_posts' %}" method="post" class="row g-2">
+          {% csrf_token %}
+          <div class="col-md-5">
+            <label class="form-label">Page ID</label>
+            <input class="form-control" name="page_id" placeholder="e.g. 1234567890" value="{{ page_id|default:'' }}">
+          </div>
+          <div class="col-md-5">
+            <label class="form-label">Page Access Token</label>
+            <input class="form-control" name="access_token" placeholder="Long-lived page access token">
+          </div>
+          <div class="col-md-2 d-flex align-items-end">
+            <button class="btn btn-primary w-100" type="submit">Fetch Posts</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- Recent Posts List -->
+    {% if posts %}
+      <div class="card mb-4">
+        <div class="card-header"><h5>Recent Posts</h5></div>
+        <div class="list-group list-group-flush">
+          {% for p in posts %}
+            <div class="list-group-item">
+              <div class="d-flex justify-content-between align-items-center">
+                
+                <!-- ⭐️⭐️⭐️ THIS IS THE MODIFIED SECTION ⭐️⭐️⭐️ -->
+                <div style="max-width:70%">
+                  <small class="text-muted">{{ p.formatted_time }}</small>
+                  
+                  {% if p.message %}
+                    <p class="mt-2 mb-1">{{ p.message }}</p>
+                  {% endif %}
+                  
+                  {% if p.full_picture %}
+                    <img src="{{ p.full_picture }}" class="img-fluid rounded mt-2" alt="Post image" style="max-height: 250px;">
+                  {% endif %}
+
+                  {% if not p.message and not p.full_picture %}
+                    <p class="mt-2 mb-1 text-muted"><em>(This post has no visible content)</em></p>
+                  {% endif %}
+                </div>
+                <!-- ⭐️⭐️⭐️ END OF MODIFIED SECTION ⭐️⭐️⭐️ -->
+
+                <!-- Action Button Area -->
+                <div class="text-end">
+                    <a href="{% url 'comment_dashboard' p.id %}" class="btn btn-info btn-sm mb-2 w-100">View Dashboard</a>
+                    <form action="{% url 'start_monitoring' %}" method="post" style="display:inline-block" class="w-100">
+                        {% csrf_token %}
+                        <input type="hidden" name="post_id" value="{{ p.id }}">
+                        <button class="btn btn-success w-100" type="submit">Start Monitor</button>
+                    </form>
+                </div>
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% endif %}
+
+    <!-- Monitoring Control Card -->
+    <div class="card mb-4">
+      <div class="card-body">
+        <h5>Monitoring Control</h5>
+        <p>Currently monitoring post: <strong>{{ monitoring_post_id|default:'— none —' }}</strong></p>
+        <form action="{% url 'stop_monitoring' %}" method="post">
+          {% csrf_token %}
+          <button class="btn btn-danger" type="submit">Stop Monitoring</button>
+        </form>
+      </div>
+    </div>
+
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
